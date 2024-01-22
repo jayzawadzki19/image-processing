@@ -244,4 +244,7 @@ $RECYCLE.BIN/
 # AWS
 */.aws-sam/*
 
+*.zip
+*/lambda/package/*
+
 # End of https://www.gitignore.io/api/osx,linux,python,windows,pycharm,visualstudiocode

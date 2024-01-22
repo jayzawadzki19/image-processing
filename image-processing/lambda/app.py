@@ -1,42 +1,42 @@
 import json
-
-# import requests
-
+import boto3
+import datetime
+from PIL import Image
+from PIL.ExifTags import TAGS
+from botocore.exceptions import ClientError
 
 def lambda_handler(event, context):
-    """Sample pure Lambda function
+    uploadedFileS3location = event["Records"][0]["s3"]["object"]["key"]
+    fileName = uploadedFileS3location.split("/").pop().split(".")[0]
+    metadataFileName = fileName + "-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + ".txt"
+    s3Client = boto3.client("s3")
+    s3Client.download_file("image-processing-s3-storage-images", uploadedFileS3location, "/tmp/" + fileName + ".jpg")
 
-    Parameters
-    ----------
-    event: dict, required
-        API Gateway Lambda Proxy Input Format
+    metadataRaportFile = open("/tmp/" + metadataFileName, "x")
 
-        Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
+    image = Image.open("/tmp/" + fileName +".jpg")
+    imageMetaData = image.getexif()
 
-    context: object, required
-        Lambda Context runtime methods and attributes
+    for tag_id in imageMetaData:
+        tag = TAGS.get(tag_id, tag_id)
+        data = imageMetaData.get(tag_id)
+        if isinstance(data, bytes):
+            data = data.decode()
+        metadataRaportFile.write(f"{tag:25}: {data}\n")
 
-        Context doc: https://docs.aws.amazon.com/lambda/latest/dg/python-context-object.html
+    metadataRaportFile.close()
 
-    Returns
-    ------
-    API Gateway Lambda Proxy Output Format: dict
-
-        Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
-    """
-
-    # try:
-    #     ip = requests.get("http://checkip.amazonaws.com/")
-    # except requests.RequestException as e:
-    #     # Send some context about this error to Lambda Logs
-    #     print(e)
-
-    #     raise e
+    try:
+        response = s3Client.upload_file("/tmp/" + metadataFileName, "image-processing-s3-storage-metadata", "metadata/" + metadataFileName)
+        print("Response", response)
+    except ClientError as e:
+        print(e)
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"message": "Error has occured"})
+        }
 
     return {
         "statusCode": 200,
-        "body": json.dumps({
-            "message": "hello world",
-            # "location": ip.text.replace("\n", "")
-        }),
+        "body": json.dumps(response),
     }

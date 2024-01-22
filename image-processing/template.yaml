@@ -7,7 +7,7 @@ Description: >
 
 Globals:
   Function:
-    Timeout: 3
+    Timeout: 15
     MemorySize: 128
 
 Resources:
@@ -34,10 +34,17 @@ Resources:
         Type: String
       Tags:
         Project: image-processing
-  ImageProcessingS3Bucket:
+  ImageProcessingS3BucketForImages:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: image-processing-s3-storage
+      BucketName: image-processing-s3-storage-images
+      Tags:
+        - Key: Project
+          Value: image-processing
+  ImageProcessingS3BucketForMetadata:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: image-processing-s3-storage-metadata
       Tags:
         - Key: Project
           Value: image-processing
