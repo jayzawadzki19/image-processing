@@ -1,14 +1,20 @@
-<div class="file-drop-wrapper">
+<mat-card class="file-selection-card">
+    <mat-card-content class="content">
+        <h3>Select .jpg file which you want to process</h3>
+        <button mat-fab extended color="accent" (click)="fileSelectInput.click()">
+            <mat-icon>attach_file</mat-icon> Select file
+        </button>
+        <input
+        #fileSelectInput
+        type="file"
+        style="visibility: hidden;"
+        (change)="onFileSelect($event)">
 
-    <div class="file-drop-field">
-        <form action="" method="post" class="paste-form">
-            <label for="fileSelection">Select files</label><br>
-            <input type="file"
-            class="paste-button"
-            id="fileSelection"
-            formControlName="fileSelection"
-            (change)="onFileSelect($event)">
-        </form>
-    </div>
-
-</div>
+        @if (loadedFile) {
+        <button mat-fab extended color="accent" (click)="fileSelectInput.click()">
+            <mat-icon>cloud_upload</mat-icon> Upload and process file
+        </button>
+        <h4>Selected file: {{loadedFile.name}}</h4>
+    }
+    </mat-card-content>
+</mat-card>

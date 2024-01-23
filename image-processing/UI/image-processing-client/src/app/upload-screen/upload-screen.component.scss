@@ -1,25 +1,12 @@
-.file-drop-wrapper {
-    width: 500px;
-    height: 500px;
-    border: 5px dotted gray;
+.file-selection-card {
+    height: 400px;
+    width: 400px;
     display: flex;
+    align-items: center;
     justify-content: center;
 
-    .file-drop-field {
-        width: 200px;
-        height: 200px;
-        border: 2px dotted gray;
-        margin: auto;
+    .content {
         display: flex;
-        justify-content: center;
-
-        .paste-form {
-            margin: auto;
-
-            .paste-button {
-                width: 100px;
-                height: 100px;
-            }
-        }
+        flex-direction: column;
     }
 }
