@@ -11,7 +11,7 @@
         (change)="onFileSelect($event)">
 
         @if (loadedFile) {
-        <button mat-fab extended color="accent" (click)="fileSelectInput.click()">
+        <button mat-fab extended color="accent" (click)="sendFile()">
             <mat-icon>cloud_upload</mat-icon> Upload and process file
         </button>
         <h4>Selected file: {{loadedFile.name}}</h4>

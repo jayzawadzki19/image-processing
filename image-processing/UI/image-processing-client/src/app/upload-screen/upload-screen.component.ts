@@ -29,8 +29,15 @@ export class UploadScreeenComponent {
         if (this.loadedFile) {
             this.imageFormData.append("image", this.loadedFile);
             console.log(this.loadedFile);
-            this.imageService.sendPicture();
         }
+    }
+
+    sendFile() {
+        this.imageService.sendPicture(this.loadedFile.name, this.imageFormData).subscribe(response => {
+            console.log('Respones', response);
+        }, error => {
+            console.log('Error', error);
+        });
     }
 
 }

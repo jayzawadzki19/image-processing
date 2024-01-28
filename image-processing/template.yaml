@@ -20,20 +20,31 @@ Resources:
       Architectures:
       - x86_64
       Events:
-        ProcessImage:
+        SendFilesApiEvent:
           Type: Api
           Properties:
-            Path: /process
-            Method: post
-  ImagesMetadataTable:
-    Type: AWS::Serverless::SimpleTable
+            Method: put
+            Path: /send-files/{bucket}/{object}
+            RestApiId: !Ref ImageProcessingApi
+        S3TriggerEvent:
+          Type: S3
+          Properties:
+            Bucket: !Ref ImageProcessingS3BucketForImages
+            Events: s3:ObjectCreated:*
+  ImageProcessingApi:
+    Type: AWS::Serverless::Api
     Properties:
-      TableName: image-processing-table-metadata
-      PrimaryKey:
-        Name: GeneratedImageId
-        Type: String
+      StageName: prod
+      Cors: "'*'"
+      BinaryMediaTypes:
+      - "*~1*"
+  ImageProcessingS3BucketForWebsite:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: image-processing-s3-website
       Tags:
-        Project: image-processing
+        - Key: Project
+          Value: image-processing
   ImageProcessingS3BucketForImages:
     Type: AWS::S3::Bucket
     Properties:
@@ -48,3 +59,32 @@ Resources:
       Tags:
         - Key: Project
           Value: image-processing
+  ApiS3PutObjectsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - apigateway.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+        - PolicyName: "APIUploadFilesToS3Policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:DescribeLogGroups"
+                  - "logs:DescribeLogStreams"
+                  - "logs:PutLogEvents"
+                  - "logs:GetLogEvents"
+                  - "logs:FilterLogEvents"
+                  - "s3:PutObject"
+                Resource: !Ref ImageProcessingApi
+
